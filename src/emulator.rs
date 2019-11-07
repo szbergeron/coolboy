@@ -25,7 +25,7 @@ impl Emulator {
     }
 
     pub fn update(&mut self) {
-        // GB can execute a maximum of 4,194,304 cycles a second
+        // GB can execute a maximum of 4,194,304 CPU cycles a second
         // This is the number of cycles per frame (@ 60 fps)
         const MAX_CYCLES: u32 = 69905;
         let mut cycles = 0;
