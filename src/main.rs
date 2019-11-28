@@ -1,22 +1,15 @@
-mod emulator;
+#[macro_use]
+extern crate bitflags;
+
+mod cartridge;
 mod cpu;
-mod graphics;
+mod emulator;
 mod memory;
 
 use emulator::Emulator;
-use std::time::{SystemTime, Duration};
 
 fn main() {
+    let mut emu = Emulator::from_file("roms/tetris.gb");
 
-    let mut emu = Emulator::new();
-    let timestep = Duration::from_secs(1) / 60;
-
-    while emu.running {
-        let begin = SystemTime::now();
-        // Run the current cycle
-        emu.update();
-        // Wait until 1/60 of a second has passed
-        while SystemTime::now() < begin + timestep { }
-    }
-
+    emu.run();
 }

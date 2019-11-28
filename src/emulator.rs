@@ -1,43 +1,42 @@
-use super::cpu::CPU;
+use super::cartridge::Cartridge;
+use super::cpu::Cpu;
 use super::memory::Memory;
-use super::graphics::Screen;
+
+use std::time::{Duration, SystemTime};
 
 pub struct Emulator {
-    pub cpu: CPU,
-    pub screen: Screen,
-    pub memory: Memory,
-    pub running: bool
+    cartridge: Cartridge,
+    cpu: Cpu,
+    memory: Memory,
 }
 
 impl Emulator {
-
-    pub fn new() -> Emulator {
+    pub fn from_file(filename: &str) -> Emulator {
         Emulator {
-            cpu: CPU::new(),
-            screen: Screen::new(),
+            cartridge: Cartridge::from_file(filename),
+            cpu: Cpu::new(),
             memory: Memory::new(),
-            running: true
         }
     }
 
-    fn load(&mut self, filename: &str) {
-        
+    pub fn run(&mut self) {
+        let timestep = Duration::from_secs(1) / 60;
+
+        loop {
+            let begin = SystemTime::now();
+            // Run the current cycle
+            self.update();
+            // Wait until 1/60 of a second has passed
+            while SystemTime::now() < begin + timestep {}
+        }
     }
 
-    pub fn update(&mut self) {
-        // GB can execute a maximum of 4,194,304 CPU cycles a second
-        // This is the number of cycles per frame (@ 60 fps)
-        const MAX_CYCLES: u32 = 69905;
+    fn update(&mut self) {
         let mut cycles = 0;
 
-        while cycles < MAX_CYCLES {
-            // Execute one CPU cycle
-            self.cpu.step(&mut self.memory);
-            cycles += 1;
+        // 69905 CPU cycles per frame
+        while cycles < 69905 {
+            cycles += self.cpu.execute(&mut self.memory);
         }
-
-        // Display graphics for the current frame
-        self.screen.display(&self.memory)
     }
-
 }
