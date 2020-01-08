@@ -1,27 +1,21 @@
-use super::memory::Memory;
-
 bitflags! {
-    struct Flags: u8 {
-        const zero = 0b1000_0000;
-        const subtract = 0b0100_0000;
-        const half_carry = 0b0010_0000;
-        const carry = 0b0001_0000;
+    pub struct Flags: u8 {
+        const ZERO = 0b1000_0000;
+        const SUBTRACT = 0b0100_0000;
+        const HALF_CARRY = 0b0010_0000;
+        const CARRY = 0b0001_0000;
     }
 }
 
-struct Registers {
-    a: u8,
-    b: u8,
-    c: u8,
-    d: u8,
-    e: u8,
-    f: Flags,
-    h: u8,
-    l: u8,
-}
-
-pub struct Cpu {
-    registers: Registers,
+pub struct Registers {
+    pub a: u8,
+    pub b: u8,
+    pub c: u8,
+    pub d: u8,
+    pub e: u8,
+    pub f: Flags,
+    pub h: u8,
+    pub l: u8,
 }
 
 impl std::convert::From<u8> for Flags {
@@ -37,7 +31,6 @@ impl std::convert::From<Flags> for u8 {
 }
 
 impl Registers {
-
     pub fn new() -> Registers {
         Registers {
             a: 0,
@@ -49,6 +42,19 @@ impl Registers {
             h: 0,
             l: 0,
         }
+    }
+
+    pub fn initialized() -> Registers {
+        let mut registers = Registers::new();
+        registers.init();
+        registers
+    }
+
+    fn init(&mut self) {
+        self.set_af(0x01b0);
+        self.set_bc(0x0013);
+        self.set_de(0x00d8);
+        self.set_hl(0x014d);
     }
 
     pub fn af(&self) -> u16 {
@@ -81,7 +87,7 @@ impl Registers {
         self.c = (value & 0x00FF) as u8;
     }
 
-    pub fn set_d(&mut self, value: u16) {
+    pub fn set_de(&mut self, value: u16) {
         self.d = (value >> 8) as u8;
         self.e = (value & 0x00FF) as u8;
     }
@@ -89,19 +95,6 @@ impl Registers {
     pub fn set_hl(&mut self, value: u16) {
         self.h = (value >> 8) as u8;
         self.l = (value & 0x00FF) as u8;
-    }
-
-}
-
-impl Cpu {
-    pub fn new() -> Cpu {
-        Cpu {
-            registers: Registers::new()
-        }
-    }
-
-    pub fn execute(&self, memory: &mut Memory) -> i32 {
-        unimplemented!()
     }
 }
 
@@ -112,33 +105,33 @@ mod test {
 
     #[test]
     fn flags_to_u8_individual() {
-        assert_eq!(Flags::zero.bits, u8::from(Flags::zero));
-        assert_eq!(Flags::subtract.bits, u8::from(Flags::subtract));
-        assert_eq!(Flags::half_carry.bits, u8::from(Flags::half_carry));
-        assert_eq!(Flags::carry.bits, u8::from(Flags::carry));
+        assert_eq!(Flags::ZERO.bits, u8::from(Flags::ZERO));
+        assert_eq!(Flags::SUBTRACT.bits, u8::from(Flags::SUBTRACT));
+        assert_eq!(Flags::HALF_CARRY.bits, u8::from(Flags::HALF_CARRY));
+        assert_eq!(Flags::CARRY.bits, u8::from(Flags::CARRY));
     }
 
     #[test]
     fn flags_to_u8_all() {
-        let flags = Flags::zero | Flags::subtract | Flags::half_carry | Flags::carry;
+        let flags = Flags::ZERO | Flags::SUBTRACT | Flags::HALF_CARRY | Flags::CARRY;
         assert_eq!(flags.bits, u8::from(flags));
     }
 
     #[test]
     fn u8_to_flags_individual() {
-        assert!(Flags::from(Flags::zero).contains(Flags::zero));
-        assert!(Flags::from(Flags::subtract).contains(Flags::subtract));
-        assert!(Flags::from(Flags::half_carry).contains(Flags::half_carry));
-        assert!(Flags::from(Flags::carry).contains(Flags::carry));
+        assert!(Flags::from(Flags::ZERO).contains(Flags::ZERO));
+        assert!(Flags::from(Flags::SUBTRACT).contains(Flags::SUBTRACT));
+        assert!(Flags::from(Flags::HALF_CARRY).contains(Flags::HALF_CARRY));
+        assert!(Flags::from(Flags::CARRY).contains(Flags::CARRY));
     }
 
     #[test]
     fn u8_to_flags_all() {
-        let flags = Flags::zero | Flags::subtract | Flags::half_carry | Flags::carry;
-        assert!(Flags::from(flags).contains(Flags::zero));
-        assert!(Flags::from(flags).contains(Flags::subtract));
-        assert!(Flags::from(flags).contains(Flags::half_carry));
-        assert!(Flags::from(flags).contains(Flags::carry));
+        let flags = Flags::ZERO | Flags::SUBTRACT | Flags::HALF_CARRY | Flags::CARRY;
+        assert!(Flags::from(flags).contains(Flags::ZERO));
+        assert!(Flags::from(flags).contains(Flags::SUBTRACT));
+        assert!(Flags::from(flags).contains(Flags::HALF_CARRY));
+        assert!(Flags::from(flags).contains(Flags::CARRY));
     }
 
 }

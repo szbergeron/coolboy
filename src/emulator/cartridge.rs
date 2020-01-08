@@ -1,4 +1,5 @@
 use std::fs::File;
+use std::io;
 use std::io::Read;
 
 pub struct Cartridge {
@@ -6,12 +7,12 @@ pub struct Cartridge {
 }
 
 impl Cartridge {
-    pub fn from_file(filename: &str) -> Cartridge {
+    pub fn from_file(filename: &str) -> Result<Cartridge, io::Error> {
         let mut file = File::open(filename).unwrap();
         let mut buffer = Vec::with_capacity(0x200_000);
-        file.read(&mut buffer).unwrap();
 
-        Cartridge { data: buffer }
+        file.read(&mut buffer)?;
+        Ok(Cartridge { data: buffer })
     }
 
     pub fn empty() -> Cartridge {
