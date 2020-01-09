@@ -14,11 +14,18 @@ use sdl2::pixels::PixelFormatEnum;
 
 fn main() -> Result<(), String> {
     let sdl = sdl2::init()?;
-    let mut screen = graphics::Screen::new(&sdl).map_err(|e| e.to_string())?;
+    let (mut screen, texture_creator) = graphics::Screen::new(&sdl).map_err(|e| e.to_string())?;
+
+    // Can we move texture to the Screen struct?
+    let mut texture = texture_creator.create_texture_streaming(
+        PixelFormatEnum::RGB24, 
+        graphics::WIDTH * graphics::PIXEL_SIZE, 
+        graphics::HEIGHT * graphics::PIXEL_SIZE)
+        .map_err(|e| e.to_string())?;
+        
     let mut emulator = Emulator::from_file("roms/tetris.gb").map_err(|e| e.to_string())?;
 
-    let timestep = Duration::from_secs(1) / 5;
-
+    let timestep = Duration::from_secs(1) / 60;
     let mut event_pump = sdl.event_pump().map_err(|e| e.to_string())?;
 
     'running: loop {
@@ -33,8 +40,8 @@ fn main() -> Result<(), String> {
             }
         }
         screen.draw();
-        // The rest of the game loop goes here...
-        ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
+
+        ::std::thread::sleep(timestep);
     }
 
     // loop {
